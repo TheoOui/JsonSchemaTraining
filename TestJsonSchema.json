@@ -1,0 +1,363 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "Test Théo :)",
+  "properties": {
+    "declaration": {
+      "type": "object",
+      "properties": {
+        "slipIdentifier": {
+          "type": "string",
+          "pattern": "^BT_[A-Z]{3}_[0-9]{8}_[0-9]{14}_[0-9]+$",
+          "examples": [
+            "BT_PEN_25032025_XXXXXXXXXXXXXX_45170"
+          ]
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "[A-Z]{1}"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Evacuation",
+            "réemploi provisoire",
+            "réemploi définitif et valorisation hors site"
+          ]
+        },
+        "hasParent": {
+          "type": "string",
+          "enum": [
+            "Yes",
+            "No"
+          ],
+          "$comment": "C'est criminel de ne pas mettre un booléen a la place"
+        },
+        "parentIdentifier": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^BT_[A-Z]{3}_[0-9]{8}_[0-9]{14}_[0-9]+$",
+            "examples": [
+              "BT_PEN_25032025_XXXXXXXXXXXXXX_45170"
+            ]
+          }
+        }
+      },
+      "required": [
+        "slipIdentifier",
+        "revision",
+        "type",
+        "hasParent"
+      ],
+      "if": {
+        "properties": {
+          "hasParent": {
+            "const": "Yes"
+          }
+        },
+        "required": [
+          "hasParent"
+        ]
+      },
+      "then": {
+        "required": [
+          "parentIdentifier"
+        ],
+        "$comment": "On fait vraiment ca ??? Ca me parait ouf de faire ca pour toutes les regles d'actions ?!? (Du moins a la main)"
+      }
+    },
+    "emitter": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Company"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "visa": {
+              "$ref": "#/$defs/Visa"
+            }
+          },
+          "required": [
+            "visa"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "carrier": {
+      "$ref": "#/$defs/Company"
+    },
+    "excavatedMaterial": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "pattern": "^[0-9]{6}$"
+        },
+        "quantityType": {
+          "type": "string",
+          "enum": [
+            "Real",
+            "Estimate"
+          ]
+        },
+        "quantityTons": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 99.99
+        },
+        "commonName": {
+          "type": "string",
+          "enum": [
+            "Terre",
+            "Gravats",
+            "Sable",
+            "Argile",
+            "Alluvions",
+            "Molasse",
+            "Limons",
+            "Remblais",
+            "Craie",
+            "Autres"
+          ]
+        },
+        "quality": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "soilOrigin": {
+          "$ref": "#/$defs/Soil"
+        },
+        "soilDestination":{
+            "$ref": "#/$defs/Soil"
+        }
+      },
+      "required": [
+        "category",
+        "quantityType",
+        "quantityTons",
+        "commonName",
+        "quality"
+      ]
+    },
+    "backFillUser": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/backFillUser"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "visa": {
+              "$ref": "#/$defs/Visa"
+            }
+          },
+          "required": [
+            "visa"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "required": [
+    "declaration",
+    "emitter",
+    "carrier",
+    "backFillUser",
+    "excavatedMaterial"
+  ],
+  "$defs": {
+    "SiretNumber": {
+      "type": "string",
+      "minLength": 14,
+      "maxLength": 14
+    },
+    "CompanyName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "CompanyAddress": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "CompanyCity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "CompanyPostalCode": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "CompanyPhoneNumber": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "CompanyEmail": {
+      "type": "string",
+      "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+      "examples": [
+        "xxx@enreprise.fr"
+      ]
+    },
+    "ContractNumber": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}[0-9]{4}$",
+      "examples": [
+        "NM2201"
+      ]
+    },
+    "OrderNumber": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 10
+    },
+    "ManagerName": {
+      "type": "string"
+    },
+    "ManagerSurname": {
+      "type": "string"
+    },
+    "SignatureDate": {
+      "type": "string",
+      "format": "date-time",
+      "examples": ["2025-03-25T10:02:30.000Z"]
+    },
+    "Signature": {
+      "type": "string"
+    },
+    "Soil": {
+      "type": "object",
+      "properties": {
+        "soilBatchId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "soilBatchId"
+      ]
+    },
+    "Company": {
+      "type": "object",
+      "properties": {
+        "siretNumber": {
+          "$ref": "#/$defs/SiretNumber"
+        },
+        "companyName": {
+          "$ref": "#/$defs/CompanyName"
+        },
+        "companyAddress": {
+          "$ref": "#/$defs/CompanyAddress"
+        },
+        "companyCity": {
+          "$ref": "#/$defs/CompanyCity"
+        },
+        "companyPostalCode": {
+          "$ref": "#/$defs/CompanyPostalCode"
+        },
+        "companyPhoneNumber": {
+          "$ref": "#/$defs/CompanyPhoneNumber"
+        },
+        "companyEmail": {
+          "$ref": "#/$defs/CompanyEmail"
+        },
+        "contractNumber": {
+          "$ref": "#/$defs/ContractNumber"
+        },
+        "orderNumber": {
+          "$ref": "#/$defs/OrderNumber"
+        },
+        "managerName": {
+          "$ref": "#/$defs/ManagerName"
+        },
+        "managerSurname": {
+          "$ref": "#/$defs/ManagerSurname"
+        }
+      },
+      "required": [
+        "siretNumber",
+        "companyName",
+        "companyAddress",
+        "companyCity",
+        "companyPostalCode",
+        "companyPhoneNumber",
+        "companyEmail",
+        "contractNumber",
+        "managerName",
+        "managerSurname"
+      ]
+    },
+    "Visa": {
+      "type": "object",
+      "properties": {
+        "signatureDate": {
+          "$ref": "#/$defs/SignatureDate"
+        },
+        "signature": {
+          "$ref": "#/$defs/Signature"
+        }
+      },
+      "additionalProperties": false
+    },
+    "backFillUser": {
+      "type": "object",
+      "properties": {
+        "siretNumber": {
+          "$ref": "#/$defs/SiretNumber"
+        },
+        "companyName": {
+          "$ref": "#/$defs/CompanyName"
+        },
+        "companyAddress": {
+          "$ref": "#/$defs/CompanyAddress"
+        },
+        "companyCity": {
+          "$ref": "#/$defs/CompanyCity"
+        },
+        "companyPostalCode": {
+          "$ref": "#/$defs/CompanyPostalCode"
+        },
+        "companyPhoneNumber": {
+          "$ref": "#/$defs/CompanyPhoneNumber"
+        },
+        "companyEmail": {
+          "$ref": "#/$defs/CompanyEmail"
+        },
+        "contractNumber": {
+          "$ref": "#/$defs/ContractNumber"
+        },
+        "orderNumber": {
+          "$ref": "#/$defs/OrderNumber"
+        },
+        "contractOwnerName": {
+          "type": "string"
+        },
+        "contractOwnerSurname": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "siretNumber",
+        "companyName",
+        "companyAddress",
+        "companyCity",
+        "companyPostalCode",
+        "companyPhoneNumber",
+        "companyEmail",
+        "contractNumber",
+        "contractOwnerName",
+        "contractOwnerSurname"
+      ]
+    }
+  }
+}
